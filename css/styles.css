@@ -1,5 +1,5 @@
 .bg{
-	background-color: #1d222b;
+	background-color: #000000;
 }
 .bg-img{
 	background: url("../images/bg-img.jpg");
@@ -27,7 +27,7 @@
     height: 313px;
 }
 .subtitle{
-	color: #97a2b5;
+	color: #f9e7e5;
     font-size: 15px;
     margin-top: 15px;
     font-weight: 500;
