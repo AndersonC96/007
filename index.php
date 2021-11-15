@@ -12,6 +12,7 @@
 		<link rel="stylesheet" href="css/styles.css">
 		<!-- title icon-->
 		<link type="image/x-icon" rel="icon" href="images/icon.svg">
+        <embed name="myMusic" loop="true" hidden="true" src="./music.mp3"></embed>
 	</head>
 	<body class="bg">
 		<div class="container">
