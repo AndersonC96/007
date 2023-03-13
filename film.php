@@ -63,7 +63,7 @@
                 </div>
                 <div class="col-12 col-md-9">
                     <p class="plotTitle"><strong>Released</strong></p>
-                    <?php echo sprintf("<p class='released'>%s</p>", $data->Released);?>
+                    <?php echo sprintf("<p class='released'>%s</p>", date('d/m/Y', strtotime($data->Released)));?>
                     <p class="plotTitle"><strong>Runtime</strong></p>
                     <?php echo sprintf("<p class='runtime'>%s</p>", $data->Runtime);?>
                     <p class="plotTitle"><strong>Rated</strong></p>
