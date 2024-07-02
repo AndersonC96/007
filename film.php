@@ -1,50 +1,49 @@
 <?php
     require("connection.php");
-    $film_id = $_GET['film'];// obter id do filme a partir da url
-	$apiKey = "43550673";// chave da api
-	function fetch_film_info($api_key, $film_id){// função para obter informações do filme
-        $query = array(// array com as informações a serem obtidas
-            "apikey" => $api_key,// chave da api
-            "i" => $film_id,// id do filme
-            "plot" => "full"// informações a serem obtidas
+    $film_id = $_GET['film']; // obter id do filme a partir da url
+    $apiKey = "43550673"; // chave da api
+    function fetch_film_info($api_key, $film_id){ // função para obter informações do filme
+        $query = array( // array com as informações a serem obtidas
+            "apikey" => $api_key, // chave da api
+            "i" => $film_id, // id do filme
+            "plot" => "full" // informações a serem obtidas
         );
-		$url = "http://www.omdbapi.com/?".http_build_query($query);// url para obter informações do filme
-		$ch = curl_init();// inicializar curl
-		curl_setopt($ch, CURLOPT_HEADER, 0);// não mostrar cabeçalho
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);// mostrar conteúdo
-		curl_setopt($ch, CURLOPT_URL, $url);// url
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// seguir redirecionamentos
-		curl_setopt($ch, CURLOPT_VERBOSE, 0);// não mostrar informações de debug
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// não verificar certificado SSL
-		$response = curl_exec($ch);// obter resposta
-		curl_close($ch);// fechar conexão
-		$data = json_decode($response);// decodificar resposta
-		return $data;// retornar dados
+        $url = "http://www.omdbapi.com/?" . http_build_query($query); // url para obter informações do filme
+        $ch = curl_init(); // inicializar curl
+        curl_setopt($ch, CURLOPT_HEADER, 0); // não mostrar cabeçalho
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // mostrar conteúdo
+        curl_setopt($ch, CURLOPT_URL, $url); // url
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // seguir redirecionamentos
+        curl_setopt($ch, CURLOPT_VERBOSE, 0); // não mostrar informações de debug
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // não verificar certificado SSL
+        $response = curl_exec($ch); // obter resposta
+        curl_close($ch); // fechar conexão
+        $data = json_decode($response); // decodificar resposta
+        return $data; // retornar dados
     }
-    $sql = sprintf("SELECT trailer FROM films WHERE imdb_id='%s'", $film_id);// obter trailer do filme
-    $result = $conn->query($sql);// executar query
-    if($result->num_rows > 0){// se houver resultados
-        while($row = $result->fetch_assoc()){// obter resultados
-            $trailer_video_url = $row["trailer"];// obter trailer do filme
-            break;// sair do loop
+    $sql = sprintf("SELECT trailer, imdb_id FROM films WHERE imdb_id='%s'", $film_id); // obter trailer e imdb_id do filme
+    $result = $conn->query($sql); // executar query
+    if($result->num_rows > 0){ // se houver resultados
+        while($row = $result->fetch_assoc()){ // obter resultados
+            $trailer_video_url = $row["trailer"]; // obter trailer do filme
+            $imdb_id = $row["imdb_id"]; // obter imdb_id do filme
+            break; // sair do loop
         }
     }
-    $data = fetch_film_info($apiKey, $film_id);// obter informações do filme
-    $trailer_video_url = "trailers/".$trailer_video_url;// url do trailer
+    $data = fetch_film_info($apiKey, $film_id); // obter informações do filme
+    $trailer_video_url = "trailers/" . $trailer_video_url; // url do trailer
+    $watch_url = "https://superflixapi.dev/filme/" . $imdb_id; // url para assistir ao filme
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
-	<head>
-		<title><?= $data->Title ?></title>
-		<!--bootstrap-css-->
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-		<!--My css style-->
-		<link rel="stylesheet" href="css/styles.css">
-        <!-- title icon-->
+    <head>
+        <title><?= $data->Title ?></title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/styles.css">
         <link type="image/x-icon" rel="icon" href="images/icon.svg">
-	</head>
-	<body class="bg">
-		<div class="container">
+    </head>
+    <body class="bg">
+        <div class="container">
             <div class="col-12">
                 <center><a href="index.php"><img class="subpage-logo" src="images/logo.png" height="150px"></a></center>
             </div>
@@ -86,14 +85,18 @@
                     <?php echo sprintf("<p class='awards'>%s</p>", $data->Awards);?>
                     <p class="plotTitle"><strong>Ratings</strong></p>
                     <?php
-                        foreach($data->Ratings as $ratings){// percorrer ratings
-                            echo sprintf("<p class='ratings'><strong>%s:</strong> %s</p>", $ratings->Source, $ratings->Value);// exibir rating
+                        foreach($data->Ratings as $ratings){ // percorrer ratings
+                            echo sprintf("<p class='ratings'><strong>%s:</strong> %s</p>", $ratings->Source, $ratings->Value); // exibir rating
                         }
                     ?>
                     <p class="plotTitle"><strong>Box Office</strong></p>
                     <?php echo sprintf("<p class='boxOffice'>%s</p>", $data->BoxOffice);?>
                     <p class="plotTitle"><strong>Production</strong></p>
                     <?php echo sprintf("<p class='production'>%s</p>", $data->Production);?>
+                    <p class="plotTitle"><strong>Assistir</strong></p>
+                    <?php
+                        echo sprintf("<p class='assistir'><a href='%s' target='_blank'>Clique aqui para assistir</a></p>", $watch_url);
+                    ?>
                 </div>
                 <div class="col-12 col-md-12 trailer">
                     <video width='100%' controls >
